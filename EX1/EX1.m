@@ -132,7 +132,7 @@ for jj=1:n
   turb_uv(jj) = sqrt(-mean(udiff.*vdiff));
 end
 
-figure()
+figure(7)
 plot(yplus(2:end-1),turb_u/newU_f)
 hold on
 plot(yplus(2:end-1),turb_v/newU_f)
@@ -142,13 +142,14 @@ legend("turb_u","turb_v","turb_uv")
 
 %% AI 8
 
-figure()
+figure(8)
 plot(y(2:end-1)/h,turb_u/newU_f)
 hold on
 plot(y(2:end-1)/h,turb_v/newU_f)
 plot(y(2:end-1)/h,turb_uv/newU_f)
 xlim([0 1])
 legend("turb_u","turb_v","turb_uv")
+hold off
 
 
 %% AI 9
@@ -158,3 +159,30 @@ k = 1/2 * (turb_u.^2+turb_v.^2+turb_w.^2);
 
 figure()
 plot(y(2:end-1)/h, k/newU_f^2)
+
+
+%% AI 10
+
+rho = 997   %kg/m^3
+
+mu = nu * rho
+
+Tau_bar = rho * newU_f^2 * (1- y/h)
+
+diffUbar = gradient(ubar,y)
+
+ReynoldsStress = Tau_bar - mu * diffUbar
+
+figure(10)
+plot(y/h, ReynoldsStress/(newU_f^2))
+hold on
+plot(y(2:end-1)/h, (turb_uv/newU_f).^2 * rho)
+hold off
+ylim([0 1000])
+legend("Reynoldsstress","Turb_uv")
+
+
+
+%% 11
+
+
