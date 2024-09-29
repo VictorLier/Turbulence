@@ -165,6 +165,16 @@ class EX:
 
         self.k = 1/2 * (self.u_rms**2 + self.v_rms**2 + w)    # eq. 10.6
 
+    def reynolds_stress(self):
+        '''
+        Calculate the Reynolds stress
+        '''
+        self.rho = 998 # Density of water [kg/m^3]
+        
+        tau_bar = self.rho * self.u_f**2 * (1- self.y/self.h)    # eq. 10.8
+        self.mu = self.rho * self.nu
+        self.rey_stress = tau_bar - self.mu * np.gradient(self.ubar, self.y)    # eq. 10.7
+
 
 if __name__ == '__main__':
     if False: # EX1 - Plot the velocity profile
@@ -297,7 +307,7 @@ if __name__ == '__main__':
         plt.title('uv_rms')
         plt.show()
 
-    if True: # EX8 - Tubulence outer-flow
+    if False: # EX8 - Tubulence outer-flow
         EX8 = EX()
         EX8.mean_velocity()
         EX8.rms()
@@ -331,7 +341,7 @@ if __name__ == '__main__':
         plt.title('uv_rms')
         plt.show()
 
-    if True: # EX9 - Turbulent kinetic energy
+    if False: # EX9 - Turbulent kinetic energy
         EX9 = EX()
         EX9.mean_velocity()
         EX9.rms()
@@ -348,4 +358,25 @@ if __name__ == '__main__':
         plt.xlabel('y/h')
         plt.ylabel('Velocity [m/s]')
         plt.title('Turbulent kinetic energy')
+        plt.show()
+
+    if True: # EX10 - Reynolds stress
+        EX10 = EX()
+        EX10.mean_velocity()
+        EX10.rms()
+        EX10.depth_averaged_velocity()
+        EX10.friction_velocity()
+        EX10.bounds()
+        EX10.friction_velocity_calc()
+        EX10.reynolds_stress()
+
+        plt.figure()
+        plt.plot(EX10.y/EX10.h, EX10.rey_stress / EX10.u_f**2, label='Reynolds stress / u_f^2')
+        plt.plot(EX10.y[1:-1]/EX10.h, EX10.rho * (EX10.uv_rms / EX10.u_f)**2, label='uv_rms / u_f')
+        plt.xlim(0, 1)
+        plt.ylim(0, 1000)
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('Reynolds stress')
+        plt.title('Reynolds stress')
         plt.show()
