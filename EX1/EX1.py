@@ -7,7 +7,7 @@ def save_as_txt(filename: str, x_data, y_data) -> None:
     '''
     Save the data as a .txt file
     '''
-    np.savetxt(filename, np.column_stack((x_data, y_data)))
+    np.savetxt('EX1/Plot/'+filename, np.column_stack((x_data, y_data)))
     
 
 
@@ -181,6 +181,8 @@ if __name__ == '__main__':
         EX1 = EX()
         EX1.mean_velocity()
 
+
+        save_as_txt('velocity_profile.txt', EX1.y, EX1.ubar)
         plt.figure()
         plt.plot(EX1.y, EX1.ubar, label='ubar')
         plt.legend()
@@ -209,10 +211,12 @@ if __name__ == '__main__':
         EX4.friction_velocity()
         EX4.bounds()
 
+        save_as_txt('bound.txt', EX4.y, EX4.ubar)
+
         plt.figure()
         plt.semilogx(EX4.y, EX4.ubar, label='ubar')
-        plt.axhline(EX4.ubar[EX4.upper_bound], color='r', linestyle='--', label='Upper bound')
-        plt.axhline(EX4.ubar[EX4.lower_bound], color='g', linestyle='--', label='Lower bound')
+        plt.axvline(EX4.y[EX4.upper_bound], color='r', linestyle='--', label='Upper bound')
+        plt.axvline(EX4.y[EX4.lower_bound], color='g', linestyle='--', label='Lower bound')
         plt.legend()
         plt.ylabel('ubar [m/s]')
         plt.xlabel('y [m]')
@@ -237,6 +241,8 @@ if __name__ == '__main__':
         EX5.bounds()
         EX5.friction_velocity_calc()
 
+        save_as_txt('yplusubar.txt', EX5.y_plus, EX5.ubar / EX5.u_f)
+        print(EX5.y_plus[EX5.upper_bound])
         plt.figure()
         plt.semilogx(EX5.y_plus, EX5.ubar / EX5.u_f, label='ubar / u_f')
         plt.axvline(5, color='r', linestyle='--', label='y+ = 5')
@@ -247,6 +253,7 @@ if __name__ == '__main__':
         plt.ylabel('ubar / u_f')
         plt.title('Dimensionless velocity profile - yplus')
         
+        save_as_txt('yhubar.txt', EX5.y/EX5.h, EX5.ubar / EX5.u_f)
         plt.figure()
         plt.semilogx(EX5.y/EX5.h, EX5.ubar / EX5.u_f, label='ubar / u_f')
         plt.legend()
@@ -264,16 +271,17 @@ if __name__ == '__main__':
         EX6.friction_velocity_calc()
         EX6.van_driest()
 
+        save_as_txt('van_driest.txt', EX6.y_plus, EX6.u_vd/EX6.u_f)
         plt.figure()
-        plt.semilogx(EX6.y, EX6.ubar, label='ubar')
-        plt.semilogx(EX6.y, EX6.u_vd, label='van Driest')
+        plt.semilogx(EX6.y_plus, EX6.ubar/EX6.u_f, label='ubar')
+        plt.semilogx(EX6.y_plus, EX6.u_vd/EX6.u_f, label='van Driest')
         plt.legend()
         plt.xlabel('y+')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('ubar/u_f and u_vd/u_f')
         plt.title('Dimensionless velocity profile - yplus')
         plt.show()
 
-    if False: # EX7 - Turbulence data
+    if True: # EX7 - Turbulence data
         EX7 = EX()
         EX7.mean_velocity()
         EX7.rms()
@@ -360,7 +368,7 @@ if __name__ == '__main__':
         plt.title('Turbulent kinetic energy')
         plt.show()
 
-    if True: # EX10 - Reynolds stress
+    if False: # EX10 - Reynolds stress
         EX10 = EX()
         EX10.mean_velocity()
         EX10.rms()
