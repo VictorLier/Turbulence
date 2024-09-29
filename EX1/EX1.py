@@ -1,4 +1,5 @@
 import scipy.io as sp
+from scipy.integrate import cumulative_trapezoid as cumtrapz
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -10,12 +11,13 @@ def save_as_txt(filename: str, x_data, y_data) -> None:
     
 
 
-class EX1:
+class EX:
     def __init__(self):
         '''
         Starts with loading the data from the .mat file
         '''
         self.load_data()
+        self.b = 0.3    # Width of the channel
 
     def load_data(self):
         '''
@@ -97,27 +99,76 @@ class EX1:
         '''
         self.u_rms = np.zeros(23)
         for i in range(23):
-            self.u_rms[i] = np.sqrt((np.sum(self.u[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))    # eq. 10.2
+            self.u_rms[i] = np.sqrt((np.sum(np.diff(self.u[i+1])**2 * self.tt[i][1:])) / np.sum(self.tt[i]))    # eq. 10.2
         
         self.v_rms = np.zeros(23)
         for i in range(23):
-            self.v_rms[i] = np.sqrt((np.sum(self.v[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))    # eq. 10.2 
+            self.v_rms[i] = np.sqrt((np.sum(np.diff(self.v[i+1])**2 * self.tt[i][1:])) / np.sum(self.tt[i]))    # eq. 10.2 
 
         self.uv_rms = np.zeros(23)
         for i in range(23):
-            self.uv_rms[i] = np.sqrt((np.sum(self.u[i+1]*self.v[i+1] * self.tt[i])) / np.sum(self.tt[i]))    # eq. 10.2
+            self.uv_rms[i] = np.sqrt((np.sum(-np.diff(self.u[i+1])*np.diff(self.v[i+1]) * self.tt[i][1:])) / np.sum(self.tt[i]))    # eq. 10.2
            
+    def depth_averaged_velocity(self):
+        '''
+        Calculate the depth-averaged velocity
+        '''
+        self.V = 1 / self.h * np.trapezoid(self.ubar, self.y)    # eq. 10.3
+
+    def friction_velocity(self):
+        '''
+        Calculate the friction velocity
+        '''
+        A = self.h * self.b
+        P = 2 * self.h + self.b
+        r_h = A / P
+
+        Re = r_h * self.V / self.nu
+        f = 0.0557 / (Re**0.25)    # eq. 10.5
         
+        self.u_f = np.sqrt(f/2) * self.V    # eq. 10.4       
+
+    def bounds(self):
+        '''
+        Calculate the bounds with the friction velocity
+        '''
+        self.y_plus = self.y * self.u_f / self.nu
+        Re_tau = self.h * self.u_f / self.nu
+
+        self.upper_bound = int(np.where(self.y_plus >= 0.1*Re_tau)[0][0])
+        self.lower_bound = int(np.where(self.y_plus >= 30)[0][0])
+
+    def friction_velocity_calc(self):
+        '''
+        Calculate the friction velocity with the new bounds
+        '''
+        A = 2.5
+        slope, intercept = np.polyfit(np.log(self.y[self.lower_bound:self.upper_bound]), self.ubar[self.lower_bound:self.upper_bound], 1)
+        self.u_f = slope / A    # eq. 3.42
+
+    def van_driest(self):
+        '''
+        Calculate the van Driest velocity profile
+        '''
+        kappa = 0.4 # Side 99
+        Ad = 25 # Side 99
+
+        den = 1 + (1 + 4 * kappa**2 * self.y_plus**2 * (1 - np.exp(- self.y_plus / Ad))**2)**0.5
+
+        self.u_vd = 2*self.u_f * cumtrapz(1/den, self.y_plus, initial=0)    # eq. 3.108
+
+    def turbulent_kinetic_energy(self):
+        '''
+        Calculate the turbulent kinetic energy
+        '''
+        w = 1.8 * self.v_rms**2
+
+        self.k = 1/2 * (self.u_rms**2 + self.v_rms**2 + w)    # eq. 10.6
 
 
 if __name__ == '__main__':
-    if False: # Test
-        x = np.array([1, 2, 3, 4, 5])
-        y = np.array([1, 2, 3, 4, 5])
-        save_as_txt('test.txt', x, y)
-
-    if True: # EX1
-        EX1 = EX1()
+    if False: # EX1 - Plot the velocity profile
+        EX1 = EX()
         EX1.mean_velocity()
 
         plt.figure()
@@ -127,6 +178,174 @@ if __name__ == '__main__':
         plt.ylabel('ubar [m/s]')
         plt.title('Velocity profile')
         plt.show()
-    
 
-    print("Stop")
+    if False: # EX2 - Calculate the depth-averaged velocity
+        EX2 = EX()
+        EX2.mean_velocity()
+        EX2.depth_averaged_velocity()
+        print("The depth-averaged velocity is: ", EX2.V, "m/s")
+
+    if False: # EX3 - Friction velocity
+        EX3 = EX()
+        EX3.mean_velocity()
+        EX3.depth_averaged_velocity()
+        EX3.friction_velocity()
+        print("The friction velocity is: ", EX3.u_f, "m/s")
+
+    if False: # EX4 - Compare new U_f
+        EX4 = EX()
+        EX4.mean_velocity()
+        EX4.depth_averaged_velocity()
+        EX4.friction_velocity()
+        EX4.bounds()
+
+        plt.figure()
+        plt.semilogx(EX4.y, EX4.ubar, label='ubar')
+        plt.axhline(EX4.ubar[EX4.upper_bound], color='r', linestyle='--', label='Upper bound')
+        plt.axhline(EX4.ubar[EX4.lower_bound], color='g', linestyle='--', label='Lower bound')
+        plt.legend()
+        plt.ylabel('ubar [m/s]')
+        plt.xlabel('y [m]')
+        plt.title('Velocity profile - Semilog')
+        plt.show()
+
+        print("The old friction velocity is: ", EX4.u_f, "m/s")
+        EX4.friction_velocity_calc()
+        print("The new friction velocity is: ", EX4.u_f, "m/s")
+
+        print("The old upper bound is: ", EX4.y[EX4.upper_bound])
+        print("The old lower bound is: ", EX4.y[EX4.lower_bound])
+        EX4.bounds()
+        print("The new upper bound is: ", EX4.y[EX4.upper_bound])
+        print("The new lower bound is: ", EX4.y[EX4.lower_bound])
+
+    if False: # EX5 Dimensionless velocity profile
+        EX5 = EX()
+        EX5.mean_velocity()
+        EX5.depth_averaged_velocity()
+        EX5.friction_velocity()
+        EX5.bounds()
+        EX5.friction_velocity_calc()
+
+        plt.figure()
+        plt.semilogx(EX5.y_plus, EX5.ubar / EX5.u_f, label='ubar / u_f')
+        plt.axvline(5, color='r', linestyle='--', label='y+ = 5')
+        plt.axvline(30, color='g', linestyle='--', label='y+ = 30')
+        plt.axvline(EX5.y_plus[EX5.upper_bound], color='b', linestyle='--', label='Upper bound')
+        plt.legend()
+        plt.xlabel('y+')
+        plt.ylabel('ubar / u_f')
+        plt.title('Dimensionless velocity profile - yplus')
+        
+        plt.figure()
+        plt.semilogx(EX5.y/EX5.h, EX5.ubar / EX5.u_f, label='ubar / u_f')
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('ubar / u_f')
+        plt.title('Dimensionless velocity profile - y/h')
+        plt.show()
+
+    if False: # EX6 - van Driest velocity profile
+        EX6 = EX()
+        EX6.mean_velocity()
+        EX6.depth_averaged_velocity()
+        EX6.friction_velocity()
+        EX6.bounds()
+        EX6.friction_velocity_calc()
+        EX6.van_driest()
+
+        plt.figure()
+        plt.semilogx(EX6.y, EX6.ubar, label='ubar')
+        plt.semilogx(EX6.y, EX6.u_vd, label='van Driest')
+        plt.legend()
+        plt.xlabel('y+')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('Dimensionless velocity profile - yplus')
+        plt.show()
+
+    if False: # EX7 - Turbulence data
+        EX7 = EX()
+        EX7.mean_velocity()
+        EX7.rms()
+        EX7.depth_averaged_velocity()
+        EX7.friction_velocity()
+        EX7.bounds()
+        EX7.friction_velocity_calc()
+
+        plt.figure()
+        plt.plot(EX7.y_plus[1:-1], EX7.u_rms / EX7.u_f, label='u_rms / u_f')
+        plt.xlim(0, 100)
+        plt.legend()
+        plt.xlabel('y+')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('u_rms')
+
+        plt.figure()
+        plt.plot(EX7.y_plus[1:-1], EX7.v_rms / EX7.u_f, label='v_rms / u_f')
+        plt.xlim(0, 100)
+        plt.legend()
+        plt.xlabel('y+')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('v_rms')
+
+        plt.figure()
+        plt.plot(EX7.y_plus[1:-1], EX7.uv_rms / EX7.u_f, label='uv_rms / u_f')
+        plt.xlim(0, 100)
+        plt.legend()
+        plt.xlabel('y+')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('uv_rms')
+        plt.show()
+
+    if True: # EX8 - Tubulence outer-flow
+        EX8 = EX()
+        EX8.mean_velocity()
+        EX8.rms()
+        EX8.depth_averaged_velocity()
+        EX8.friction_velocity()
+        EX8.bounds()
+        EX8.friction_velocity_calc()
+
+        plt.figure()
+        plt.plot(EX8.y[1:-1]/EX8.h, EX8.u_rms / EX8.u_f, label='u_rms / u_f')
+        plt.xlim(0, 1)
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('u_rms')
+
+        plt.figure()
+        plt.plot(EX8.y[1:-1]/EX8.h, EX8.v_rms / EX8.u_f, label='v_rms / u_f')
+        plt.xlim(0, 1)
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('v_rms')
+
+        plt.figure()
+        plt.plot(EX8.y[1:-1]/EX8.h, EX8.uv_rms / EX8.u_f, label='uv_rms / u_f')
+        plt.xlim(0, 1)
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('uv_rms')
+        plt.show()
+
+    if True: # EX9 - Turbulent kinetic energy
+        EX9 = EX()
+        EX9.mean_velocity()
+        EX9.rms()
+        EX9.depth_averaged_velocity()
+        EX9.friction_velocity()
+        EX9.bounds()
+        EX9.friction_velocity_calc()
+        EX9.turbulent_kinetic_energy()
+
+        plt.figure()
+        plt.plot(EX9.y[1:-1]/EX9.h, EX9.k / EX9.u_f**2, label='k / u_f^2')
+        plt.xlim(0, 1)
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('Velocity [m/s]')
+        plt.title('Turbulent kinetic energy')
+        plt.show()
