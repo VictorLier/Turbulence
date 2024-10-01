@@ -97,17 +97,24 @@ class EX:
         '''
         Calculate the RMS velocity u_rms, v_rms and uv_rms
         '''
+        u_prime = self.u.copy()
+        v_prime = self.v.copy()
+
+        for i in range(23):
+            u_prime[i+1] = self.u[i+1] - self.ubar[i+1]
+            v_prime[i+1] = self.v[i+1] - self.vbar[i]
+
         self.u_rms = np.zeros(23)
         for i in range(23):
-            self.u_rms[i] = np.sqrt((np.sum(np.diff(self.u[i+1])**2 * self.tt[i][1:])) / np.sum(self.tt[i]))    # eq. 10.2
+            self.u_rms[i] = ((np.sum(u_prime[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))**0.5    # eq. 10.2
         
         self.v_rms = np.zeros(23)
         for i in range(23):
-            self.v_rms[i] = np.sqrt((np.sum(np.diff(self.v[i+1])**2 * self.tt[i][1:])) / np.sum(self.tt[i]))    # eq. 10.2 
+            self.v_rms[i] = ((np.sum(v_prime[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))**0.5   # eq. 10.2 
 
         self.uv_rms = np.zeros(23)
         for i in range(23):
-            self.uv_rms[i] = np.sqrt((np.sum(-np.diff(self.u[i+1])*np.diff(self.v[i+1]) * self.tt[i][1:])) / np.sum(self.tt[i]))    # eq. 10.2
+            self.uv_rms[i] = ((np.sum(-v_prime[i+1]*u_prime[i+1] * self.tt[i])) / np.sum(self.tt[i]))**0.5    # eq. 10.2
            
     def depth_averaged_velocity(self):
         '''
@@ -177,7 +184,7 @@ class EX:
 
 
 if __name__ == '__main__':
-    if False: # EX1 - Plot the velocity profile
+    if True: # EX1 - Plot the velocity profile
         EX1 = EX()
         EX1.mean_velocity()
 
@@ -191,20 +198,20 @@ if __name__ == '__main__':
         plt.title('Velocity profile')
         plt.show()
 
-    if False: # EX2 - Calculate the depth-averaged velocity
+    if True: # EX2 - Calculate the depth-averaged velocity
         EX2 = EX()
         EX2.mean_velocity()
         EX2.depth_averaged_velocity()
         print("The depth-averaged velocity is: ", EX2.V, "m/s")
 
-    if False: # EX3 - Friction velocity
+    if True: # EX3 - Friction velocity
         EX3 = EX()
         EX3.mean_velocity()
         EX3.depth_averaged_velocity()
         EX3.friction_velocity()
         print("The friction velocity is: ", EX3.u_f, "m/s")
 
-    if False: # EX4 - Compare new U_f
+    if True: # EX4 - Compare new U_f
         EX4 = EX()
         EX4.mean_velocity()
         EX4.depth_averaged_velocity()
@@ -233,7 +240,7 @@ if __name__ == '__main__':
         print("The new upper bound is: ", EX4.y[EX4.upper_bound])
         print("The new lower bound is: ", EX4.y[EX4.lower_bound])
 
-    if False: # EX5 Dimensionless velocity profile
+    if True: # EX5 Dimensionless velocity profile
         EX5 = EX()
         EX5.mean_velocity()
         EX5.depth_averaged_velocity()
@@ -262,7 +269,7 @@ if __name__ == '__main__':
         plt.title('Dimensionless velocity profile - y/h')
         plt.show()
 
-    if False: # EX6 - van Driest velocity profile
+    if True: # EX6 - van Driest velocity profile
         EX6 = EX()
         EX6.mean_velocity()
         EX6.depth_averaged_velocity()
@@ -290,32 +297,40 @@ if __name__ == '__main__':
         EX7.bounds()
         EX7.friction_velocity_calc()
 
+        # print("The boundary for log-region is: ", EX7.y_plus[EX7.lower_bound])
+
+        save_as_txt('urms.txt', EX7.y_plus[1:-1], EX7.u_rms / EX7.u_f)
+
         plt.figure()
         plt.plot(EX7.y_plus[1:-1], EX7.u_rms / EX7.u_f, label='u_rms / u_f')
         plt.xlim(0, 100)
         plt.legend()
         plt.xlabel('y+')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('Velocity')
         plt.title('u_rms')
+
+        save_as_txt('vrms.txt', EX7.y_plus[1:-1], EX7.v_rms / EX7.u_f)
 
         plt.figure()
         plt.plot(EX7.y_plus[1:-1], EX7.v_rms / EX7.u_f, label='v_rms / u_f')
         plt.xlim(0, 100)
         plt.legend()
         plt.xlabel('y+')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('Velocity')
         plt.title('v_rms')
+
+        save_as_txt('uvrms.txt', EX7.y_plus[1:-1], EX7.uv_rms / EX7.u_f)
 
         plt.figure()
         plt.plot(EX7.y_plus[1:-1], EX7.uv_rms / EX7.u_f, label='uv_rms / u_f')
         plt.xlim(0, 100)
         plt.legend()
         plt.xlabel('y+')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('Velocity')
         plt.title('uv_rms')
         plt.show()
 
-    if False: # EX8 - Tubulence outer-flow
+    if True: # EX8 - Tubulence outer-flow
         EX8 = EX()
         EX8.mean_velocity()
         EX8.rms()
@@ -324,32 +339,38 @@ if __name__ == '__main__':
         EX8.bounds()
         EX8.friction_velocity_calc()
 
+        save_as_txt('urms_yh.txt', EX8.y[1:-1]/EX8.h, EX8.u_rms / EX8.u_f)
+
         plt.figure()
         plt.plot(EX8.y[1:-1]/EX8.h, EX8.u_rms / EX8.u_f, label='u_rms / u_f')
         plt.xlim(0, 1)
         plt.legend()
         plt.xlabel('y/h')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('Velocity')
         plt.title('u_rms')
+
+        save_as_txt('vrms_yh.txt', EX8.y[1:-1]/EX8.h, EX8.v_rms / EX8.u_f)
 
         plt.figure()
         plt.plot(EX8.y[1:-1]/EX8.h, EX8.v_rms / EX8.u_f, label='v_rms / u_f')
         plt.xlim(0, 1)
         plt.legend()
         plt.xlabel('y/h')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('Velocity')
         plt.title('v_rms')
+
+        save_as_txt('uvrms_yh.txt', EX8.y[1:-1]/EX8.h, EX8.uv_rms / EX8.u_f)
 
         plt.figure()
         plt.plot(EX8.y[1:-1]/EX8.h, EX8.uv_rms / EX8.u_f, label='uv_rms / u_f')
         plt.xlim(0, 1)
         plt.legend()
         plt.xlabel('y/h')
-        plt.ylabel('Velocity [m/s]')
+        plt.ylabel('Velocity')
         plt.title('uv_rms')
         plt.show()
 
-    if False: # EX9 - Turbulent kinetic energy
+    if True: # EX9 - Turbulent kinetic energy
         EX9 = EX()
         EX9.mean_velocity()
         EX9.rms()
@@ -358,6 +379,8 @@ if __name__ == '__main__':
         EX9.bounds()
         EX9.friction_velocity_calc()
         EX9.turbulent_kinetic_energy()
+
+        save_as_txt('k_yh.txt', EX9.y[1:-1]/EX9.h, EX9.k / EX9.u_f**2)
 
         plt.figure()
         plt.plot(EX9.y[1:-1]/EX9.h, EX9.k / EX9.u_f**2, label='k / u_f^2')
@@ -368,7 +391,7 @@ if __name__ == '__main__':
         plt.title('Turbulent kinetic energy')
         plt.show()
 
-    if False: # EX10 - Reynolds stress
+    if True: # EX10 - Reynolds stress
         EX10 = EX()
         EX10.mean_velocity()
         EX10.rms()
@@ -377,6 +400,9 @@ if __name__ == '__main__':
         EX10.bounds()
         EX10.friction_velocity_calc()
         EX10.reynolds_stress()
+
+        save_as_txt('rey_yh.txt', EX10.y/EX10.h, EX10.rey_stress / EX10.u_f**2)
+        save_as_txt('rey_compare.txt', EX10.y[1:-1]/EX10.h, EX10.rho * (EX10.uv_rms / EX10.u_f)**2)
 
         plt.figure()
         plt.plot(EX10.y/EX10.h, EX10.rey_stress / EX10.u_f**2, label='Reynolds stress / u_f^2')
