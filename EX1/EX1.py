@@ -140,9 +140,9 @@ class EX:
         Calculate the bounds with the friction velocity
         '''
         self.y_plus = self.y * self.u_f / self.nu
-        Re_tau = self.h * self.u_f / self.nu
+        self.Re_tau = self.h * self.u_f / self.nu
 
-        self.upper_bound = int(np.where(self.y_plus >= 0.1*Re_tau)[0][0])
+        self.upper_bound = int(np.where(self.y_plus <= 0.1*self.Re_tau)[0][-1])
         self.lower_bound = int(np.where(self.y_plus >= 30)[0][0])
 
     def friction_velocity_calc(self):
@@ -222,8 +222,8 @@ if __name__ == '__main__':
 
         plt.figure()
         plt.semilogx(EX4.y, EX4.ubar, label='ubar')
-        plt.axvline(EX4.y[EX4.upper_bound], color='r', linestyle='--', label='Upper bound')
-        plt.axvline(EX4.y[EX4.lower_bound], color='g', linestyle='--', label='Lower bound')
+        plt.axvline((0.1*EX4.Re_tau) * EX4.nu / EX4.u_f, color='r', linestyle='--', label='Upper bound')
+        plt.axvline(30 * EX4.nu / EX4.u_f, color='g', linestyle='--', label='Lower bound')
         plt.legend()
         plt.ylabel('ubar [m/s]')
         plt.xlabel('y [m]')
@@ -231,14 +231,14 @@ if __name__ == '__main__':
         plt.show()
 
         print("The old friction velocity is: ", EX4.u_f, "m/s")
+        print("The old upper bound is: ", (0.1*EX4.Re_tau) * EX4.nu / EX4.u_f) # y [m]
+        print("The old lower bound is: ", 30 * EX4.nu / EX4.u_f) # y [m]
+        
+        
         EX4.friction_velocity_calc()
         print("The new friction velocity is: ", EX4.u_f, "m/s")
-
-        print("The old upper bound is: ", EX4.y[EX4.upper_bound])
-        print("The old lower bound is: ", EX4.y[EX4.lower_bound])
-        EX4.bounds()
-        print("The new upper bound is: ", EX4.y[EX4.upper_bound])
-        print("The new lower bound is: ", EX4.y[EX4.lower_bound])
+        print("The new upper bound is: ", (0.1*EX4.Re_tau) * EX4.nu / EX4.u_f) # y [m]
+        print("The new lower bound is: ", 30 * EX4.nu / EX4.u_f) # y [m]
 
     if True: # EX5 Dimensionless velocity profile
         EX5 = EX()
