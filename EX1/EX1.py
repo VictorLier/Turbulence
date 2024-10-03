@@ -182,9 +182,14 @@ class EX:
         self.mu = self.rho * self.nu
         self.rey_stress = tau_bar - self.mu * np.gradient(self.ubar, self.y)    # eq. 10.7
 
+    def energy_production(self):
+        '''
+        Calculate the energy production
+        '''
+        self.P = self.rey_stress * np.gradient(self.ubar, self.y)    # p. 701
 
 if __name__ == '__main__':
-    if True: # EX1 - Plot the velocity profile
+    if False: # EX1 - Plot the velocity profile
         EX1 = EX()
         EX1.mean_velocity()
 
@@ -198,20 +203,20 @@ if __name__ == '__main__':
         plt.title('Velocity profile')
         plt.show()
 
-    if True: # EX2 - Calculate the depth-averaged velocity
+    if False: # EX2 - Calculate the depth-averaged velocity
         EX2 = EX()
         EX2.mean_velocity()
         EX2.depth_averaged_velocity()
         print("The depth-averaged velocity is: ", EX2.V, "m/s")
 
-    if True: # EX3 - Friction velocity
+    if False: # EX3 - Friction velocity
         EX3 = EX()
         EX3.mean_velocity()
         EX3.depth_averaged_velocity()
         EX3.friction_velocity()
         print("The friction velocity is: ", EX3.u_f, "m/s")
 
-    if True: # EX4 - Compare new U_f
+    if False: # EX4 - Compare new U_f
         EX4 = EX()
         EX4.mean_velocity()
         EX4.depth_averaged_velocity()
@@ -240,7 +245,7 @@ if __name__ == '__main__':
         print("The new upper bound is: ", (0.1*EX4.Re_tau) * EX4.nu / EX4.u_f) # y [m]
         print("The new lower bound is: ", 30 * EX4.nu / EX4.u_f) # y [m]
 
-    if True: # EX5 Dimensionless velocity profile
+    if False: # EX5 Dimensionless velocity profile
         EX5 = EX()
         EX5.mean_velocity()
         EX5.depth_averaged_velocity()
@@ -269,7 +274,7 @@ if __name__ == '__main__':
         plt.title('Dimensionless velocity profile - y/h')
         plt.show()
 
-    if True: # EX6 - van Driest velocity profile
+    if False: # EX6 - van Driest velocity profile
         EX6 = EX()
         EX6.mean_velocity()
         EX6.depth_averaged_velocity()
@@ -288,7 +293,7 @@ if __name__ == '__main__':
         plt.title('Dimensionless velocity profile - yplus')
         plt.show()
 
-    if True: # EX7 - Turbulence data
+    if False: # EX7 - Turbulence data
         EX7 = EX()
         EX7.mean_velocity()
         EX7.rms()
@@ -330,7 +335,7 @@ if __name__ == '__main__':
         plt.title('uv_rms')
         plt.show()
 
-    if True: # EX8 - Tubulence outer-flow
+    if False: # EX8 - Tubulence outer-flow
         EX8 = EX()
         EX8.mean_velocity()
         EX8.rms()
@@ -370,7 +375,7 @@ if __name__ == '__main__':
         plt.title('uv_rms')
         plt.show()
 
-    if True: # EX9 - Turbulent kinetic energy
+    if False: # EX9 - Turbulent kinetic energy
         EX9 = EX()
         EX9.mean_velocity()
         EX9.rms()
@@ -391,7 +396,7 @@ if __name__ == '__main__':
         plt.title('Turbulent kinetic energy')
         plt.show()
 
-    if True: # EX10 - Reynolds stress
+    if False: # EX10 - Reynolds stress
         EX10 = EX()
         EX10.mean_velocity()
         EX10.rms()
@@ -413,4 +418,26 @@ if __name__ == '__main__':
         plt.xlabel('y/h')
         plt.ylabel('Reynolds stress')
         plt.title('Reynolds stress')
+        plt.show()
+
+    if True: # EX11 - Energy production
+        EX11 = EX()
+        EX11.mean_velocity()
+        EX11.rms()
+        EX11.depth_averaged_velocity()
+        EX11.friction_velocity()
+        EX11.bounds()
+        EX11.friction_velocity_calc()
+        EX11.reynolds_stress()
+        EX11.energy_production()
+
+        save_as_txt('P_yh.txt', EX11.y/EX11.h, EX11.P)
+
+        plt.figure()
+        plt.plot(EX11.y/EX11.h, EX11.P, label='P')
+        plt.xlim(0, 1)
+        plt.legend()
+        plt.xlabel('y/h')
+        plt.ylabel('Energy production')
+        plt.title('Energy production')
         plt.show()
