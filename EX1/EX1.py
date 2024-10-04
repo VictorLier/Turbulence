@@ -182,6 +182,8 @@ class EX:
         self.mu = self.rho * self.nu
         self.rey_stress = tau_bar - self.mu * np.gradient(self.ubar, self.y)    # eq. 10.7
 
+        self.rey_dimles = self.rey_stress / self.rho
+
     def energy_production(self):
         '''
         Calculate the energy production
@@ -192,7 +194,7 @@ class EX:
         self.P = self.rho * uv_prime_bar* np.gradient(self.ubar, self.y)[1:-1]    # p. 701 # No minus see 10.2
 
 if __name__ == '__main__':
-    if False: # EX1 - Plot the velocity profile
+    if True: # EX1 - Plot the velocity profile
         EX1 = EX()
         EX1.mean_velocity()
 
@@ -206,20 +208,20 @@ if __name__ == '__main__':
         plt.title('Velocity profile')
         plt.show()
 
-    if False: # EX2 - Calculate the depth-averaged velocity
+    if True: # EX2 - Calculate the depth-averaged velocity
         EX2 = EX()
         EX2.mean_velocity()
         EX2.depth_averaged_velocity()
         print("The depth-averaged velocity is: ", EX2.V, "m/s")
 
-    if False: # EX3 - Friction velocity
+    if True: # EX3 - Friction velocity
         EX3 = EX()
         EX3.mean_velocity()
         EX3.depth_averaged_velocity()
         EX3.friction_velocity()
         print("The friction velocity is: ", EX3.u_f, "m/s")
 
-    if False: # EX4 - Compare new U_f
+    if True: # EX4 - Compare new U_f
         EX4 = EX()
         EX4.mean_velocity()
         EX4.depth_averaged_velocity()
@@ -248,7 +250,7 @@ if __name__ == '__main__':
         print("The new upper bound is: ", (0.1*EX4.Re_tau) * EX4.nu / EX4.u_f) # y [m]
         print("The new lower bound is: ", 30 * EX4.nu / EX4.u_f) # y [m]
 
-    if False: # EX5 Dimensionless velocity profile
+    if True: # EX5 Dimensionless velocity profile
         EX5 = EX()
         EX5.mean_velocity()
         EX5.depth_averaged_velocity()
@@ -277,7 +279,7 @@ if __name__ == '__main__':
         plt.title('Dimensionless velocity profile - y/h')
         plt.show()
 
-    if False: # EX6 - van Driest velocity profile
+    if True: # EX6 - van Driest velocity profile
         EX6 = EX()
         EX6.mean_velocity()
         EX6.depth_averaged_velocity()
@@ -296,7 +298,7 @@ if __name__ == '__main__':
         plt.title('Dimensionless velocity profile - yplus')
         plt.show()
 
-    if False: # EX7 - Turbulence data
+    if True: # EX7 - Turbulence data
         EX7 = EX()
         EX7.mean_velocity()
         EX7.rms()
@@ -338,7 +340,7 @@ if __name__ == '__main__':
         plt.title('uv_rms')
         plt.show()
 
-    if False: # EX8 - Tubulence outer-flow
+    if True: # EX8 - Tubulence outer-flow
         EX8 = EX()
         EX8.mean_velocity()
         EX8.rms()
@@ -378,7 +380,7 @@ if __name__ == '__main__':
         plt.title('uv_rms')
         plt.show()
 
-    if False: # EX9 - Turbulent kinetic energy
+    if True: # EX9 - Turbulent kinetic energy
         EX9 = EX()
         EX9.mean_velocity()
         EX9.rms()
@@ -399,7 +401,7 @@ if __name__ == '__main__':
         plt.title('Turbulent kinetic energy')
         plt.show()
 
-    if False: # EX10 - Reynolds stress
+    if True: # EX10 - Reynolds stress
         EX10 = EX()
         EX10.mean_velocity()
         EX10.rms()
@@ -409,14 +411,13 @@ if __name__ == '__main__':
         EX10.friction_velocity_calc()
         EX10.reynolds_stress()
 
-        save_as_txt('rey_yh.txt', EX10.y/EX10.h, EX10.rey_stress / EX10.u_f**2)
-        save_as_txt('rey_compare.txt', EX10.y[1:-1]/EX10.h, EX10.rho * (EX10.uv_rms / EX10.u_f)**2)
+        save_as_txt('rey_yh.txt', EX10.y/EX10.h, EX10.rey_dimles / EX10.u_f**2)
+        save_as_txt('rey_compare.txt', EX10.y[1:-1]/EX10.h, (EX10.uv_rms / EX10.u_f)**2)
 
         plt.figure()
-        plt.plot(EX10.y/EX10.h, EX10.rey_stress / EX10.u_f**2, label='Reynolds stress / u_f^2')
-        plt.plot(EX10.y[1:-1]/EX10.h, EX10.rho * (EX10.uv_rms / EX10.u_f)**2, label='uv_rms / u_f')
+        plt.plot(EX10.y/EX10.h, EX10.rey_dimles / EX10.u_f**2, label='Reynolds stress / u_f^2')
+        plt.plot(EX10.y[1:-1]/EX10.h,  (EX10.uv_rms / EX10.u_f)**2, label='uv_rms / u_f')
         plt.xlim(0, 1)
-        plt.ylim(0, 1000)
         plt.legend()
         plt.xlabel('y/h')
         plt.ylabel('Reynolds stress')
