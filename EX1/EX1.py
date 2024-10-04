@@ -97,24 +97,24 @@ class EX:
         '''
         Calculate the RMS velocity u_rms, v_rms and uv_rms
         '''
-        u_prime = self.u.copy()
-        v_prime = self.v.copy()
+        self.u_prime = self.u.copy()
+        self.v_prime = self.v.copy()
 
         for i in range(23):
-            u_prime[i+1] = self.u[i+1] - self.ubar[i+1]
-            v_prime[i+1] = self.v[i+1] - self.vbar[i]
+            self.u_prime[i+1] = self.u[i+1] - self.ubar[i+1]
+            self.v_prime[i+1] = self.v[i+1] - self.vbar[i]
 
         self.u_rms = np.zeros(23)
         for i in range(23):
-            self.u_rms[i] = ((np.sum(u_prime[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))**0.5    # eq. 10.2
+            self.u_rms[i] = ((np.sum(self.u_prime[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))**0.5    # eq. 10.2
         
         self.v_rms = np.zeros(23)
         for i in range(23):
-            self.v_rms[i] = ((np.sum(v_prime[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))**0.5   # eq. 10.2 
+            self.v_rms[i] = ((np.sum(self.v_prime[i+1]**2 * self.tt[i])) / np.sum(self.tt[i]))**0.5   # eq. 10.2 
 
         self.uv_rms = np.zeros(23)
         for i in range(23):
-            self.uv_rms[i] = ((np.sum(-v_prime[i+1]*u_prime[i+1] * self.tt[i])) / np.sum(self.tt[i]))**0.5    # eq. 10.2
+            self.uv_rms[i] = ((np.sum(-self.v_prime[i+1]*self.u_prime[i+1] * self.tt[i])) / np.sum(self.tt[i]))**0.5    # eq. 10.2
            
     def depth_averaged_velocity(self):
         '''
@@ -186,7 +186,10 @@ class EX:
         '''
         Calculate the energy production
         '''
-        self.P = self.rey_stress * np.gradient(self.ubar, self.y)    # p. 701
+
+        uv_prime_bar = self.uv_rms**2
+
+        self.P = self.rho * uv_prime_bar* np.gradient(self.ubar, self.y)[1:-1]    # p. 701 # No minus see 10.2
 
 if __name__ == '__main__':
     if False: # EX1 - Plot the velocity profile
@@ -431,10 +434,10 @@ if __name__ == '__main__':
         EX11.reynolds_stress()
         EX11.energy_production()
 
-        save_as_txt('P_yh.txt', EX11.y/EX11.h, EX11.P)
+        save_as_txt('P_yh.txt', EX11.y[1:-1]/EX11.h, EX11.P)
 
         plt.figure()
-        plt.plot(EX11.y/EX11.h, EX11.P, label='P')
+        plt.plot(EX11.y[1:-1]/EX11.h, EX11.P, label='P')
         plt.xlim(0, 1)
         plt.legend()
         plt.xlabel('y/h')
