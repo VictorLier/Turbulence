@@ -435,10 +435,10 @@ if __name__ == '__main__':
         EX11.reynolds_stress()
         EX11.energy_production()
 
-        save_as_txt('P_yh.txt', EX11.y[1:-1]/EX11.h, EX11.P)
+        save_as_txt('P_yh.txt', EX11.y[1:-1]/EX11.h, EX11.P/EX11.rho)
 
         plt.figure()
-        plt.plot(EX11.y[1:-1]/EX11.h, EX11.P, label='P')
+        plt.plot(EX11.y[1:-1]/EX11.h, EX11.P/EX11.rho, label='P')
         plt.xlim(0, 1)
         plt.legend()
         plt.xlabel('y/h')
