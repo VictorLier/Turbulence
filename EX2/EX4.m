@@ -45,3 +45,5 @@ k_s(1:3) = nu ./ U_fm(1:3) .* 0.1; %(712)
 
 % Expected k+_s
 kp_s = k_s .* U_fm ./ nu %(712)
+
+% Cas3 4 is in the hydrualic rough regime as the k+_s is above 70 - (P. 420)
