@@ -16,24 +16,24 @@ Re = U_0m .* a / nu;    %(5.1)
 
 
 % friction factor laminar
-F_w(1) = 2 / sqrt(Re(1)); % (5.59)
+f_w(1) = 2 / sqrt(Re(1)); % (5.59)
 
 
 % Friction factor transitional
-F_w(2) = 0.005;         % (5.61) - Det giver den største friction velocity
+f_w(2) = 0.005;         % (5.61) - Det giver den største friction velocity
 
 
 % Friction factor turbulent
-F_w(3) = 0.035/Re(3)^(0.16);  % (5.60)
+f_w(3) = 0.035/Re(3)^(0.16);  % (5.60)
 
 
 k_s(4) = WBL(4).k_s;
-F_w(4) = exp(5.5 * (a(4)/k_s(4))^(-0.16) - 6.7);  % (5.69)
+f_w(4) = exp(5.5 * (a(4)/k_s(4))^(-0.16) - 6.7);  % (5.69)
 
 
 % Maximum friction velocity
 
-U_fm = sqrt(F_w/2) .* U_0m;    %(5.57) 
+U_fm = sqrt(f_w/2) .* U_0m;    %(5.57) 
 
 
 %% 2
@@ -44,6 +44,6 @@ k_s(1:3) = nu ./ U_fm(1:3) .* 0.1; %(712)
 
 
 % Expected k+_s
-kp_s = k_s .* U_fm ./ nu %(712)
+kp_s = k_s .* U_fm ./ nu; %(712)
 
 % Cas3 4 is in the hydrualic rough regime as the k+_s is above 70 - (P. 420)
