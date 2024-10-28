@@ -19,14 +19,14 @@ a = U_0m/omega
 sigma_1 = (2 * nu / omega)^(1/2); % (5.13)
 
 period_data_length = (n_t-1)/5;
-omegat(1) = period_data_length*4; % 0
-omegat(2) = omegat(1) + period_data_length/360*45; % 45
-omegat(3) = omegat(2) + period_data_length/360*45; % 90
-omegat(4) = omegat(3) + period_data_length/360*45; % 135
+omegat(1) = period_data_length*4+1; % 0
+omegat(2) = omegat(1) + period_data_length/360*45+1; % 45
+omegat(3) = omegat(2) + period_data_length/360*45+1; % 90
+omegat(4) = omegat(3) + period_data_length/360*45+1; % 135
 
 
 % bed shear stress time series
-tau = MatRANS.tau0(omegat(1)+2:end);
+tau = MatRANS.tau0(omegat(1):end-1);
 rho = MatRANS.rho;
 
 mu = nu*rho;
@@ -71,15 +71,14 @@ Re = a * U_0m/nu
 
 f_w = 2/sqrt(Re) %(5.59)
 
-figure(3)
-hold on
-plot(angle*180/pi,Fw_model, Color='r')
-plot(angle_d,Fw_data,Color='b')
-yline(f_w, Color='g')
-hold off
+%figure(3)
+%hold on
+%plot(angle*180/pi,Fw_model, Color='r')
+%plot(angle_d,Fw_data,Color='b')
+%yline(f_w, Color='g')
+%hold off
 
 writematrix([angle*180/pi;Fw_model]', 'Case2Data/Fw_model.txt', Delimiter=' ');
 writematrix([angle_d;Fw_data]', 'Case2Data/Fw_data.txt', Delimiter=' ');
 writematrix(f_w, 'Case2Data/Fw_laminar.txt', Delimiter=' ')
-
 

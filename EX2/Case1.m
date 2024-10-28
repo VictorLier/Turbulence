@@ -23,10 +23,10 @@ u_theory4 = U_0m .* sin(135*pi/180) - U_0m .* exp(-y./sigma_1) .* sin((135*pi/18
 
 period_data_length = (n_t-1)/5;
 
-omegat(1) = period_data_length*4;
-omegat(2) = omegat(1) + period_data_length/360*45;
-omegat(3) = omegat(2) + period_data_length/360*45;
-omegat(4) = omegat(3) + period_data_length/360*45;
+omegat(1) = period_data_length*4+1;
+omegat(2) = omegat(1) + period_data_length/360*45+1;
+omegat(3) = omegat(2) + period_data_length/360*45+1;
+omegat(4) = omegat(3) + period_data_length/360*45+1;
 
 
 A0 = u(omegat(1),:)/U_0m;
@@ -91,7 +91,7 @@ ylim([0,0.02])
 
 
 % bed shear stress time series
-tau = MatRANS.tau0(omegat(1)+2:end)
+tau = MatRANS.tau0(omegat(1)+1:end)
 rho = MatRANS.rho
 
 mu = nu*rho
