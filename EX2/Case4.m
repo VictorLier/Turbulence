@@ -1,5 +1,5 @@
 clear all; close all; clc;
-load("MatRANS/TurbulenceBook/Exercise4/Case3/out_MatRANS.mat");
+load("MatRANS/TurbulenceBook/Exercise4/Case4/out_MatRANS.mat");
 load("Exercise4.mat")
 
 %% Data velocity
@@ -135,8 +135,8 @@ writematrix([uv_model_135/U_0m^2, y_model/a], 'Case4Data/m_r_135.txt',Delimiter=
 
 %figure(3)
 %hold on
-%plot(-uv_data_45/(U_0m^2), yuv_data/a)
-%plot(uv_model_45/(U_0m^2), y_model/a)
+%plot(-uv_data_135/(U_0m^2), yuv_data/a)
+%plot(uv_model_135/(U_0m^2), y_model/a)
 %hold off
 
 
@@ -160,10 +160,10 @@ tau_model = MatRANS.tau0(omegat_0+1:end);
 
 writematrix([omega_model', tau_model/(rho * U_0m^2)], 'Case4Data/model_shear.txt',Delimiter=' ');
 
-
-figure(4)
-hold on
-plot(omega_data, tau_data/(rho * U_0m^2))
-plot(omega_model, tau_model/(rho * U_0m^2))
-hold off
+%
+%figure(4)
+%hold on
+%plot(omega_data, tau_data/(rho * U_0m^2))
+%plot(omega_model, tau_model/(rho * U_0m^2))
+%hold off
 
