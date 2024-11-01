@@ -32,9 +32,9 @@ n_t = MatRANS.n_t - 1;
 one_phase = n_t/5;
 fortyfive = one_phase/8;
 omegat_0 = n_t - one_phase+1;
-omegat_45 = omegat_0 + fortyfive+1;
-omegat_90 = omegat_45 + fortyfive+1;
-omegat_135 = omegat_90 + fortyfive+1;
+omegat_45 = omegat_0 + fortyfive;
+omegat_90 = omegat_45 + fortyfive;
+omegat_135 = omegat_90 + fortyfive;
 
 y_model = MatRANS.y';
 u_model_0 = MatRANS.u(omegat_0,:)';

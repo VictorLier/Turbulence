@@ -24,9 +24,9 @@ u_theory4 = U_0m .* sin(135*pi/180) - U_0m .* exp(-y./sigma_1) .* sin((135*pi/18
 period_data_length = (n_t-1)/5;
 
 omegat(1) = period_data_length*4+1;
-omegat(2) = omegat(1) + period_data_length/360*45+1;
-omegat(3) = omegat(2) + period_data_length/360*45+1;
-omegat(4) = omegat(3) + period_data_length/360*45+1;
+omegat(2) = omegat(1) + period_data_length/360*45;
+omegat(3) = omegat(2) + period_data_length/360*45;
+omegat(4) = omegat(3) + period_data_length/360*45;
 
 
 A0 = u(omegat(1),:)/U_0m;
@@ -61,31 +61,35 @@ writematrix(data135_t, 'Case1Data/135_t.txt', Delimiter=' ');
 % Create a 1x4 grid of subplots
 figure(1)
 subplot(1, 4, 1); % First subplot
+hold on
 plot(u(omegat(1),:)/U_0m,y/a)
 plot(u_theory1/U_0m,y/a)
+hold off
 title('Plot 1');
-xlim([0,1.5])
 ylim([0,0.02])
 
 subplot(1, 4, 2); % Second subplot
+hold on
 plot(u(omegat(2),:)/U_0m,y/a)
 plot(u_theory2/U_0m,y/a)
+hold off
 title('Plot 2');
-xlim([0,1.5])
 ylim([0,0.02])
 
 subplot(1, 4, 3); % Third subplot
+hold on
 plot(u(omegat(3),:)/U_0m,y/a)
 plot(u_theory3/U_0m,y/a)
+hold off
 title('Plot 3');
-xlim([0,1.5])
 ylim([0,0.02])
 
 subplot(1, 4, 4); % Fourth subplot
-plot(u(omegat(4),:)/U_0m,y/a)
-plot(u_theory4/U_0m,y/a)
+hold on
+plot(u(omegat(4),:)/U_0m,y/a, Color='r')
+plot(u_theory4/U_0m,y/a, Color='b')
+hold off
 title('Plot 4')
-xlim([0,1.5])
 ylim([0,0.02])
 
 

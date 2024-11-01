@@ -20,9 +20,9 @@ sigma_1 = (2 * nu / omega)^(1/2); % (5.13)
 
 period_data_length = (n_t-1)/5;
 omegat(1) = period_data_length*4+1; % 0
-omegat(2) = omegat(1) + period_data_length/360*45+1; % 45
-omegat(3) = omegat(2) + period_data_length/360*45+1; % 90
-omegat(4) = omegat(3) + period_data_length/360*45+1; % 135
+omegat(2) = omegat(1) + period_data_length/360*45; % 45
+omegat(3) = omegat(2) + period_data_length/360*45; % 90
+omegat(4) = omegat(3) + period_data_length/360*45; % 135
 
 
 % bed shear stress time series
