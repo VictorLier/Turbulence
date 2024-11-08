@@ -189,12 +189,12 @@ class EX3:
 
         self.T_E = np.trapezoid(self.R_E, self.t[:tau_cross]) # Eulerian macro scale (4.45)
 
-        self.tau_e = np.sqrt(2 * self.sigma2 / np.mean((np.diff(self.uprime)/self.dt)**2))
+        self.tau_E = np.sqrt(2 * self.sigma2 / np.mean((np.diff(self.uprime)/self.dt)**2))
 
         if printbool:
             print(f'Zero crossing at tau =  {tau_cross} with R_E = {R_E[tau_cross]:.4g}')
             print(f'The Eulerian macro scale is {self.T_E:.4g} s')
-            print(f'The Eulerian micro scale is {self.tau_e:.4g} s')
+            print(f'The Eulerian micro scale is {self.tau_E:.4g} s')
 
 
         if plot:
@@ -206,7 +206,72 @@ class EX3:
             plt.grid()
 
 
+    def micro_macro(self, printbool:bool=False) -> None:
+        '''
+        Calculates the approximate micro and macro turbulent scales with Taylor's frozen turbulence hypothesis.
 
+        Args:
+            printbool (bool): Print the micro and macro turbulent scales (default False)
+        
+        Attributes:
+            lambda_f (float): The micro turbulent scale
+            Lambda_f (float): The macro turbulent scale
+        '''
+        self.lambda_f = self.tau_E * self.ubar # (4.55)
+        
+        self.Lambda_f = self.T_E * self.ubar # (4.55)
+
+        if printbool:
+            print(f'The micro turbulent scale is {self.lambda_f:.4g} m')
+            print(f'The macro turbulent scale is {self.Lambda_f:.4g} m')
+
+
+    def dissipation_rate(self, printbool: bool = False) -> None:
+        '''
+        Calculates the dissipation rate of the turbulent kinetic energy
+
+        Args:
+            printbool (bool): Print the dissipation rate (default False)
+        
+        Attributes:
+            epsilon (float): The dissipation rate
+        '''
+        self.epsilon = 30 * self.nu * self.sigma2 / self.lambda_f**2 # (4.83)
+
+        if printbool:
+            print(f'The dissipation rate is {self.epsilon:.4g} m^2/s^3')
+
+
+    def kolomogorov_length(self, printbool: bool = False) -> None:
+        '''
+        Calculates the Kolmogorov length scale
+
+        Args:
+            printbool (bool): Print the Kolmogorov length scale (default False)
+
+        Attributes:
+            eta_K (float): The Kolmogorov length scale
+        '''
+        self.eta_K = (self.nu**3 / self.epsilon)**(1/4) # (4.86)
+
+        if printbool:
+            print(f'The Kolmogorov length scale is {self.eta_K:.4g} m')
+
+
+    def kolomogorov_time(self, printbool: bool = False) -> None:
+        '''
+        Calculates the Kolmogorov time scale
+
+        Args:
+            printbool (bool): Print the Kolmogorov time scale (default False)
+
+        Attributes:
+            tau_K (float): The Kolmogorov time scale
+        '''
+        self.tau_K = (self.nu / self.epsilon)**(1/2) # (4.87)
+
+        if printbool:
+            print(f'The Kolmogorov time scale is {self.tau_K:.4g} s')
 
 
     def energy_spectra(self, plot: bool = False, printbool: bool = False) -> None:
@@ -264,19 +329,19 @@ if __name__ == '__main__':
 
 
     if False: # Part AI1
-        ex3 = EX3()
-        ex3.mean(printbol=True)
-        ex3.fluc_vel(plot=True, save=True)
+        ex1 = EX3()
+        ex1.mean(printbol=True)
+        ex1.fluc_vel(plot=True, save=True)
         plt.show()
     
 
     if False: # Part AI2
-        ex3 = EX3()
-        ex3.mean(printbol=True)
-        ex3.variance(printbol=True)
-        ex3.skewness(printbol=True)
-        ex3.kurtosis(printbol=True)
-        ex3.turbulence_intensity(printbol=True)
+        ex1 = EX3()
+        ex2.mean(printbol=True)
+        ex2.variance(printbol=True)
+        ex2.skewness(printbol=True)
+        ex2.kurtosis(printbol=True)
+        ex2.turbulence_intensity(printbol=True)
 
 
     if False: # Part AI3
@@ -287,13 +352,35 @@ if __name__ == '__main__':
         plt.show()
 
 
-    if True: # Part AI4
-        ex3 = EX3()
-        ex3.mean()
-        ex3.variance(printbol=False)
-        ex3.fluc_vel()
-        ex3.time_correlation(plot=True, printbool=True)
+    if False: # Part AI4
+        ex4 = EX3()
+        ex4.mean()
+        ex4.variance(printbol=False)
+        ex4.fluc_vel()
+        ex4.time_correlation(plot=True, printbool=True)
         plt.show()
+
+
+    if False: # Part AI5
+        ex5 = EX3()
+        ex5.mean()
+        ex5.variance()
+        ex5.fluc_vel()
+        ex5.time_correlation()
+        ex5.micro_macro(printbool=True)
+        
+    
+    if False: # Part AI6
+        ex6 = EX3()
+        ex6.mean()
+        ex6.variance()
+        ex6.fluc_vel()
+        ex6.time_correlation()
+        ex6.micro_macro()
+        ex6.dissipation_rate(printbool=True)
+        ex6.kolomogorov_length(printbool=True)
+        ex6.kolomogorov_time(printbool=True)
+
 
     if False: # Part AI7
         ex3 = EX3()
