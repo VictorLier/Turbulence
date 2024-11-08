@@ -6,13 +6,26 @@ from scipy.signal import welch
 
 
 class EX3:
+    '''
+    Class for computing the statistics of a turbulent jet flow
+    '''
     def __init__(self, dataset: int = 12, sample_rate: float = 50000) -> None:
         '''
-        Create an instance of the EX3 class
+        Create an instance of the EX3 class and loads the data
 
         Args:
             dataset (int): The dataset to use: 1-12 (default 12)
             sample_rate (float): The sample rate of the data [Hz] (default 50000 Hz)
+        
+        Attributes:
+            fs (float): The sample rate of the data [Hz]
+            L (float): The length of the jet [m]
+            D (float): The diameter of the jet [m]
+            nu (float): The kinematic viscosity of the fluid [m^2/s]
+            V (float): The velocity of the jet [m/s]
+            t (np.array): The time of the data [s]
+            u (np.array): The velocity of the data [m/s]
+            dt (float): The time step of the data [s]
         '''
         self.dataset = dataset-1
         self.fs = sample_rate # Hz
@@ -23,6 +36,14 @@ class EX3:
     def load_data(self) -> None:
         '''
         Load the data from the .mat file
+
+        Attributes:
+            L (float): The length of the jet [m]
+            D (float): The diameter of the jet [m]
+            nu (float): The kinematic viscosity of the fluid [m^2/s]
+            V (float): The velocity of the jet [m/s]
+            t (np.array): The time of the data [s]
+            u (np.array): The velocity of the data [m/s]
         '''
         data = sp.loadmat('EX3/Exercise3.mat')
         data = data['Jet']
@@ -48,6 +69,9 @@ class EX3:
 
         Args:
             printbol (bool): Print the mean velocity (default False)
+        
+        Attributes:
+            ubar (float): The mean velocity
         '''
         self.ubar = np.mean(self.u)
 
@@ -61,6 +85,9 @@ class EX3:
 
         Args:
             printbol (bool): Print the standard deviation (default False)
+        
+        Attributes:
+            sigma (float): The standard deviation of the velocity
         '''
         self.sigma = np.std(self.u)
 
@@ -74,6 +101,9 @@ class EX3:
 
         Args:
             printbol (bool): Print the variance (default False)
+        
+        Attributes:
+            sigma2 (float): The variance of the velocity
         '''
         self.sigma2 = np.var(self.u)
 
@@ -87,6 +117,9 @@ class EX3:
 
         Args:
             printbol (bool): Print the skewness (default False)
+        
+        Attributes:
+            Su (float): The skewness of the velocity
         '''
         self.Su = np.mean((self.u - self.ubar)**3) / self.sigma2**(3/2) # (4.11)
 
@@ -99,7 +132,10 @@ class EX3:
         Calculate the kurtosis Fu of the velocity
 
         Args:
-            printbol (bool): Print the kurtosis (default False)
+            printbol (bool): Print the kurtosis (default False)'
+        
+        Attributes:
+            Fu (float): The kurtosis of the velocity
         '''
         self.Fu = np.mean((self.u - self.ubar)**4) / self.sigma2**2 # (4.12)
 
@@ -113,6 +149,9 @@ class EX3:
 
         Args:
             printbol (bool): Print the turbulence intensity (default False)
+        
+        Attributes:
+            I (float): The turbulence intensity
         '''
         self.I = np.sqrt(self.sigma2) / self.ubar # (4.53)
 
@@ -120,13 +159,15 @@ class EX3:
             print(f'The turbulence intensity is {self.I:.4g}')
         
 
-    def fluc_vel(self, plot: bool = False, save: bool = False) -> None:
+    def fluc_vel(self, plot: bool = False) -> None:
         '''
         Calculate the fluctuating velocity u'
 
         Args:
-            plot (bool): Plot the fluctuating velocity (default False)
-            save (bool): Save the plot in .txt file (default False)
+            plot (bool): Plot the fluctuating velocity and saves the data (default False)
+        
+        Attributes:
+            uprime (np.array): The fluctuating velocity
         '''
         self.uprime = self.u - self.ubar
         
@@ -137,7 +178,6 @@ class EX3:
             plt.title('Fluctuating velocity')
             plt.grid()
 
-        if save:
             np.savetxt('EX3/data/fluctuating_velocity.txt', np.vstack((self.uprime, self.t)).T)
 
 
@@ -171,6 +211,11 @@ class EX3:
         Args:
             plot (bool): Plot the time correlation function (default False)
             printbool (bool): Print the Eulerian macro and micro scales (default False)
+        
+        Attributes:
+            R_E (np.array): The time correlation function
+            T_E (float): The Eulerian macro scale [s]
+            tau_E (float): The Eulerian micro scale [s]
         '''
         max_tau = 1000
         R_E = np.zeros(max_tau)
@@ -284,6 +329,10 @@ class EX3:
         
         Raises:
             ValueError: If the integral of the energy spectra does not match the variance of the velocity
+
+        Attributes:
+            f (np.array): The frequencies of the energy spectra
+            S (np.array): The energy spectra
         '''
         # Er nappet direkte fra side 216
         N = len(self.uprime)
@@ -370,7 +419,7 @@ if __name__ == '__main__':
         print('Part AI1')
         ex1 = EX3()
         ex1.mean(printbol=True)
-        ex1.fluc_vel(plot=True, save=True)
+        ex1.fluc_vel(plot=True)
         plt.show()
     
 
