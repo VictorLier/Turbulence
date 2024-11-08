@@ -281,33 +281,38 @@ class EX3:
         Args:
             plot (bool): Plot the energy spectra (default False)
             printbool (bool): Print the integral of the energy spectra (default False)
-
+        
+        Raises:
+            ValueError: If the integral of the energy spectra does not match the variance of the velocity
         '''
         # Er nappet direkte fra side 216
         N = len(self.uprime)
         dt = 1/self.fs
         f_N = 1 / (2*dt)
         df = f_N / (N / 2)
-        f = np.arange(0, f_N, df)
+        self.f = np.arange(0, f_N, df)
         U = np.fft.fft(self.uprime)/N
         A = np.abs(2*U[0:N//2])
-        S = 0.5*A**2/df
+        self.S = 0.5*A**2/df
 
         # Smoothing
         nw = 100
         windowlenght = round(N / nw)
-        freqs, psd = welch(S, fs=self.fs, nperseg=windowlenght) 
+        freqs, psd = welch(self.uprime, fs=self.fs, nperseg=windowlenght) 
 
-        area = np.trapezoid(S, f)
-        if not np.isclose(area, self.sigma2, rtol=1e-5):
-            raise ValueError(f'The integral of the energy spectra does not match the variance of the velocity. The integral is {area:.4g} m^2/s^2 and the variance is {self.sigma2:.4g} m^2/s^2')
+        area = np.trapezoid(self.S, self.f)
+        if not np.isclose(area, self.sigma2, rtol=1e-6):
+            raise ValueError(f'The integral of the energy spectra does not match the variance of the velocity. The integral is {area} m^2/s^2 and the variance is {self.sigma2} m^2/s^2')
 
         
         if printbool:
             print(f'The integral of the energy spectra is {area:.4g} m^2/s')
 
         if plot:
-            plt.loglog(f, S, label='Energy spectra')
+            np.savetxt('EX3/data/energy_spectra.txt', np.vstack((self.f, self.S)).T)
+            np.savetxt('EX3/data/energy_spectra_welch.txt', np.vstack((freqs, psd)).T)
+
+            plt.loglog(self.f, self.S, label='Energy spectra')
             plt.loglog(freqs, psd, label='Smoothed energy spectra')
             plt.legend()
             plt.xlabel('Frequency [Hz]')
@@ -316,8 +321,41 @@ class EX3:
             plt.grid()
 
 
+    def wave_spectrum(self, plot:bool = False, printbool:bool=False) -> None:
+        '''
+        Computes the wave spectrum of the fluctuating velocity
 
+        Args:
+            printbool (bool): Print the wave spectrum integral (default False)
+            plot (bool): Plot the wave spectrum and compared to the von Karmen model spectrum (default False)
+            
+        Attributes:
+            F (np.array): The wave spectrum
+            k (np.array): The wave number
+        '''
+        self.F = self.ubar/(4*np.pi) * self.S  # (4.125)
+        self.k = 2*np.pi*self.f/self.ubar # P. 707
 
+        area = np.trapezoid(self.F, self.k)
+        if not np.isclose(area, self.sigma2/2, rtol=1e-6):
+            raise ValueError(f'The integral of the wave spectrum does not match hald of the variance of the velocity. The integral is {area} m^2/s^2 and the variance is {self.sigma2} m^2/s^2')
+
+        VK = self.Lambda_f * self.sigma2 / np.pi * 1/(1 + 70.78 * (self.k * self.Lambda_f/(2*np.pi))**2)**(5/6) # (4.131)
+
+        if printbool:
+            print(f'The integral of the wave spectrum is {area:.4g} m^2/s^2')
+
+        if plot:
+            np.savetxt('EX3/data/wave_spectrum.txt', np.vstack((self.k, self.F)).T)
+            np.savetxt('EX3/data/von_karman_spectrum.txt', np.vstack((self.k, VK)).T)
+
+            plt.loglog(self.k, self.F, label='Wave spectrum')
+            plt.loglog(self.k, VK, label='von Karmen model')
+            plt.legend()
+            plt.xlabel('Wave number [1/m]')
+            plt.ylabel('Wave spectrum m^2/s')
+            plt.title('Wave spectrum of the fluctuating velocity')
+            plt.grid()
 
 
 if __name__ == '__main__':
@@ -396,4 +434,18 @@ if __name__ == '__main__':
         ex3.fluc_vel()
         ex3.energy_spectra(plot=True, printbool=True)
         plt.show()
+
+
+    if True: # Part AI8
+        print('Part AI8')
+        ex8 = EX3()
+        ex8.mean()
+        ex8.variance()
+        ex8.fluc_vel()
+        ex8.time_correlation()
+        ex8.micro_macro()
+        ex8.energy_spectra()
+        ex8.wave_spectrum(plot=True)
+        plt.show()
+        
 
