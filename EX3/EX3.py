@@ -329,6 +329,7 @@ if __name__ == '__main__':
 
 
     if False: # Part AI1
+        print('Part AI1')
         ex1 = EX3()
         ex1.mean(printbol=True)
         ex1.fluc_vel(plot=True, save=True)
@@ -336,6 +337,7 @@ if __name__ == '__main__':
     
 
     if False: # Part AI2
+        print('Part AI2')
         ex1 = EX3()
         ex2.mean(printbol=True)
         ex2.variance(printbol=True)
@@ -345,6 +347,7 @@ if __name__ == '__main__':
 
 
     if False: # Part AI3
+        print('Part AI3')
         ex3 = EX3()
         ex3.mean()
         ex3.standard_deviation()
@@ -353,6 +356,7 @@ if __name__ == '__main__':
 
 
     if False: # Part AI4
+        print('Part AI4')
         ex4 = EX3()
         ex4.mean()
         ex4.variance(printbol=False)
@@ -362,6 +366,7 @@ if __name__ == '__main__':
 
 
     if False: # Part AI5
+        print('Part AI5')
         ex5 = EX3()
         ex5.mean()
         ex5.variance()
@@ -371,6 +376,7 @@ if __name__ == '__main__':
         
     
     if False: # Part AI6
+        print('Part AI6')
         ex6 = EX3()
         ex6.mean()
         ex6.variance()
@@ -383,6 +389,7 @@ if __name__ == '__main__':
 
 
     if False: # Part AI7
+        print('Part AI7')
         ex3 = EX3()
         ex3.mean()
         ex3.variance(printbol=True)
