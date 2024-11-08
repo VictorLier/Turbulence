@@ -17,6 +17,7 @@ class EX3:
         self.dataset = dataset-1
         self.fs = sample_rate # Hz
         self.load_data()
+        self.dt = 1 / self.fs # s
 
 
     def load_data(self) -> None:
@@ -171,18 +172,34 @@ class EX3:
             plot (bool): Plot the time correlation function (default False)
             printbool (bool): Print the Eulerian macro and micro scales (default False)
         '''
-        R_E = []
-        for tau in range(0, 1000):
-            R_E.append(np.mean(self.u[0:len(self.u)-tau] * self.u[tau:]) / self.sigma2) # p. 183
-            if R_E[-1] < 0:
+        max_tau = 1000
+        R_E = np.zeros(max_tau)
+        R_E[0] = np.mean(self.uprime**2) / self.sigma2 # p. 183
+        for tau in range(1, max_tau):
+            R_E[tau] = np.mean(self.uprime[:len(self.u) - tau] * self.uprime[tau:]) / self.sigma2 # (4.38)
+
+            if R_E[tau] < 0:
+                tau_cross = tau+1
                 break
-        np.array(R_E)
+
+            if tau == max_tau-1:
+                raise ValueError('The time correlation function does not cross zero within the range of tau')
         
-        
+        self.R_E = R_E[:tau_cross] # First negative value is included
+
+        self.T_E = np.trapezoid(self.R_E, self.t[:tau_cross]) # Eulerian macro scale (4.45)
+
+        self.tau_e = np.sqrt(2 * self.sigma2 / np.mean((np.diff(self.uprime)/self.dt)**2))
+
+        if printbool:
+            print(f'Zero crossing at tau =  {tau_cross} with R_E = {R_E[tau_cross]:.4g}')
+            print(f'The Eulerian macro scale is {self.T_E:.4g} s')
+            print(f'The Eulerian micro scale is {self.tau_e:.4g} s')
 
 
         if plot:
-            plt.plot(self.t[0:len(R_E)], R_E)
+            np.savetxt('EX3/data/time_correlation.txt', np.vstack((self.t[:tau_cross], self.R_E)).T)
+            plt.plot(self.t[:tau_cross], self.R_E)
             plt.xlabel('Time (tau) [s]')
             plt.ylabel('Time correlation function (R_E(tau))')
             plt.title('Time correlation function')
@@ -273,8 +290,9 @@ if __name__ == '__main__':
     if True: # Part AI4
         ex3 = EX3()
         ex3.mean()
-        ex3.variance(printbol=True)
-        ex3.time_correlation(plot=True)
+        ex3.variance(printbol=False)
+        ex3.fluc_vel()
+        ex3.time_correlation(plot=True, printbool=True)
         plt.show()
 
     if False: # Part AI7
