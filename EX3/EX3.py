@@ -63,6 +63,20 @@ class EX3:
             self.u[i] = float(data['u'][0][self.dataset][i][0])
 
 
+    def reynolds_number(self, printbool: bool = False) -> None:
+        '''
+        Calculate the Reynolds number Re
+
+
+        Args:
+            printbool (bool): Print the Reynolds number (default False)
+
+        Attributes:
+            Re (float): The Reynolds number
+        '''
+        self.Re = self.V * self.D / self.nu # p.708
+
+
     def mean(self, printbol: bool = False) -> None:
         '''
         Calculate the mean velocity ubar
@@ -172,13 +186,24 @@ class EX3:
         self.uprime = self.u - self.ubar
         
         if plot:
+            plt.figure()
+            plt.title('Fluctuating velocity - Full')
             plt.plot(self.t, self.uprime)
             plt.xlabel('Time [s]')
             plt.ylabel('Fluctuating velocity [m/s]')
-            plt.title('Fluctuating velocity')
             plt.grid()
 
-            np.savetxt('EX3/data/fluctuating_velocity.txt', np.vstack((self.uprime, self.t)).T)
+            plt.figure()
+            plt.title('Fluctuating velocity - Zoomed')
+            plt.plot(self.t, self.uprime)
+            plt.xlabel('Time [s]')
+            plt.ylabel('Fluctuating velocity [m/s]')
+            plt.xlim(2, 2.05)
+            plt.grid()
+
+
+            np.savetxt('EX3/data/fluctuating_velocity.txt', np.vstack((self.t, self.uprime)).T[::150])
+            np.savetxt('EX3/data/fluctuating_velocity_zoomed.txt', np.vstack((self.t, self.uprime)).T[self.fs*2:self.fs*2+500])
 
 
     def probability_density(self, plot: bool = False) -> None:
@@ -217,7 +242,7 @@ class EX3:
             T_E (float): The Eulerian macro scale [s]
             tau_E (float): The Eulerian micro scale [s]
         '''
-        max_tau = 1000
+        max_tau = 10000
         R_E = np.zeros(max_tau)
         R_E[0] = np.mean(self.uprime**2) / self.sigma2 # p. 183
         for tau in range(1, max_tau):
@@ -407,6 +432,65 @@ class EX3:
             plt.grid()
 
 
+    def charactaristic_wave_numbers(self, printbool: bool = False) -> None:
+        '''
+        Computes the charactaristic wave numbers of the wave spectrum
+
+        Args:
+            printbool (bool): Print the charactaristic wave numbers (default False)
+        
+        Attributes:
+            k_macro (float): The wave number of the macro turbulent scale
+            k_micro (float): The wave number of the micro turbulent scale
+            k_Kolomogorv (float): The wave number of the Kolmogorov length scale
+        '''
+        self.k_macro = self.Lambda_f**(-1)
+        self.k_micro = self.lambda_f**(-1)
+        self.k_Kolomogorv = self.eta_K**(-1)
+
+        if printbool:
+            print(f'The wave number of the macro turbulent scale is {self.k_macro:.4g} 1/m')
+            print(f'The wave number of the micro turbulent scale is {self.k_micro:.4g} 1/m')
+            print(f'The wave number of the Kolmogorov length scale is {self.k_Kolomogorv:.4g} 1/m')
+
+
+    def get_charactaristic_lengths(self) -> None:
+        '''
+        Runs the required methods to get the charactaristic lengths
+        
+        args:
+            printbool (bool): Print the charactaristic lengths (default False)
+        '''
+        self.mean()
+        self.variance()
+        self.fluc_vel()
+        self.time_correlation()
+        self.micro_macro()
+        self.dissipation_rate()
+        self.kolomogorov_length()
+
+
+    def reynolds_number_dependence(self) -> None:
+        '''
+        Calculates the length scale ratios and the reynolds number dependence of the turbulent scales.
+        Loads the charactaristic lengths and the Reynolds number autimatically
+
+        Attributes:
+            Lambda_eta (float): The ratio of the macro turbulent scale to the Kolmogorov length scale
+            Lambda_lambda (float): The ratio of the macro turbulent scale to the micro turbulent scale
+            Re_Le (float): The Reynolds number dependence of the macro turbulent scale
+            Re_Ll (float): The Reynolds number dependence of the micro turbulent scale
+        '''
+        self.reynolds_number()
+        self.get_charactaristic_lengths()
+
+        self.Lambda_eta = self.Lambda_f / self.eta_K # p. 708
+        self.Lambda_lambda = self.Lambda_f / self.lambda_f # p. 708
+        self.Re_Le = self.Re**(3/4) # p. 708
+        self.Re_Ll = self.Re**(1/2) # p. 708
+
+
+
 if __name__ == '__main__':
     if False: # Test
         a = np.array([1, 2, 3])
@@ -415,7 +499,7 @@ if __name__ == '__main__':
         print(c)
 
 
-    if False: # Part AI1
+    if True: # Part AI1
         print('Part AI1')
         ex1 = EX3()
         ex1.mean(printbol=True)
@@ -485,7 +569,7 @@ if __name__ == '__main__':
         plt.show()
 
 
-    if True: # Part AI8
+    if False: # Part AI8
         print('Part AI8')
         ex8 = EX3()
         ex8.mean()
@@ -497,4 +581,60 @@ if __name__ == '__main__':
         ex8.wave_spectrum(plot=True)
         plt.show()
         
+    
+    if False: # Part AI9
+        # Not implemented
+        pass
+
+
+    if False: # Part AI10
+        print('Part AI10')
+        ex10 = EX3()
+        ex10.get_charactaristic_lengths()
+        ex10.charactaristic_wave_numbers(printbool=True)
+        
+
+    if False: # Part AI11
+        print('Part AI11')
+
+        dataset_list = range(1, 13)
+        lambda_eta = []
+        lambda_lambda = []
+        re_Le = []
+        re_Ll = []
+        Re = []
+
+        for dataset in dataset_list:
+            print(f'Dataset {dataset}')
+            EX3_instance = EX3(dataset=dataset)
+            EX3_instance.reynolds_number_dependence()
+
+            lambda_eta.append(EX3_instance.Lambda_eta)
+            lambda_lambda.append(EX3_instance.Lambda_lambda)
+            re_Le.append(EX3_instance.Re_Le)
+            re_Ll.append(EX3_instance.Re_Ll)
+            Re.append(EX3_instance.Re)
+        
+        plt.figure()
+        plt.scatter(Re, lambda_eta, label='Lambda_eta')
+        plt.plot(Re, re_Le, label='Re_Le')
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.xlabel('Re')
+        plt.ylabel('Length scale ratio')
+        plt.legend()
+        plt.ylim(1e1, 1e6)
+
+
+        plt.figure()
+        plt.scatter(Re, lambda_lambda, label='Lambda_lambda')
+        plt.plot(Re, re_Ll, label='Re_Ll')
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.xlabel('Re')
+        plt.ylabel('Length scale ratio')
+        plt.legend()
+        plt.ylim(1e1, 1e6)
+
+        plt.show()
 
