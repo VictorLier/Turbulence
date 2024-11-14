@@ -76,6 +76,9 @@ class EX3:
         '''
         self.Re = self.V * self.D / self.nu # p.708
 
+        if printbool:
+            print(f'The Reynolds number is {self.Re:.4g}')
+
 
     def mean(self, printbol: bool = False) -> None:
         '''
@@ -228,6 +231,9 @@ class EX3:
             plt.legend()
             plt.grid()
 
+            np.savetxt('EX3/data/probability_density.txt', np.vstack((x, y)).T)
+            np.savetxt('EX3/data/probability_density_gauss.txt', np.vstack((self.u, gauss)).T[::150])
+
 
     def time_correlation(self, plot: bool = False, printbool: bool = False) -> None:
         '''
@@ -268,12 +274,13 @@ class EX3:
 
 
         if plot:
-            np.savetxt('EX3/data/time_correlation.txt', np.vstack((self.t[:tau_cross], self.R_E)).T)
             plt.plot(self.t[:tau_cross], self.R_E)
             plt.xlabel('Time (tau) [s]')
             plt.ylabel('Time correlation function (R_E(tau))')
             plt.title('Time correlation function')
             plt.grid()
+
+            np.savetxt('EX3/data/time_correlation.txt', np.vstack((self.t[:tau_cross], self.R_E)).T)
 
 
     def micro_macro(self, printbool:bool=False) -> None:
@@ -370,7 +377,7 @@ class EX3:
         self.S = 0.5*A**2/df
 
         # Smoothing
-        nw = 100
+        nw = 200
         windowlenght = round(N / nw)
         freqs, psd = welch(self.uprime, fs=self.fs, nperseg=windowlenght) 
 
@@ -383,7 +390,7 @@ class EX3:
             print(f'The integral of the energy spectra is {area:.4g} m^2/s')
 
         if plot:
-            np.savetxt('EX3/data/energy_spectra.txt', np.vstack((self.f, self.S)).T)
+            np.savetxt('EX3/data/energy_spectra.txt', np.vstack((self.f, self.S)).T[::150])
             np.savetxt('EX3/data/energy_spectra_welch.txt', np.vstack((freqs, psd)).T)
 
             plt.loglog(self.f, self.S, label='Energy spectra')
@@ -420,8 +427,8 @@ class EX3:
             print(f'The integral of the wave spectrum is {area:.4g} m^2/s^2')
 
         if plot:
-            np.savetxt('EX3/data/wave_spectrum.txt', np.vstack((self.k, self.F)).T)
-            np.savetxt('EX3/data/von_karman_spectrum.txt', np.vstack((self.k, VK)).T)
+            np.savetxt('EX3/data/wave_spectrum.txt', np.vstack((self.k, self.F)).T[::150])
+            np.savetxt('EX3/data/von_karman_spectrum.txt', np.vstack((self.k, VK)).T[::150])
 
             plt.loglog(self.k, self.F, label='Wave spectrum')
             plt.loglog(self.k, VK, label='von Karmen model')
@@ -464,7 +471,7 @@ class EX3:
         self.mean()
         self.variance()
         self.fluc_vel()
-        self.time_correlation()
+        self.time_correlation(plot=True)
         self.micro_macro()
         self.dissipation_rate()
         self.kolomogorov_length()
@@ -499,7 +506,7 @@ if __name__ == '__main__':
         print(c)
 
 
-    if True: # Part AI1
+    if False: # Part AI1
         print('Part AI1')
         ex1 = EX3()
         ex1.mean(printbol=True)
@@ -509,7 +516,7 @@ if __name__ == '__main__':
 
     if False: # Part AI2
         print('Part AI2')
-        ex1 = EX3()
+        ex2 = EX3()
         ex2.mean(printbol=True)
         ex2.variance(printbol=True)
         ex2.skewness(printbol=True)
@@ -530,7 +537,7 @@ if __name__ == '__main__':
         print('Part AI4')
         ex4 = EX3()
         ex4.mean()
-        ex4.variance(printbol=False)
+        ex4.variance()
         ex4.fluc_vel()
         ex4.time_correlation(plot=True, printbool=True)
         plt.show()
@@ -594,7 +601,7 @@ if __name__ == '__main__':
         ex10.charactaristic_wave_numbers(printbool=True)
         
 
-    if False: # Part AI11
+    if True: # Part AI11
         print('Part AI11')
 
         dataset_list = range(1, 13)
@@ -615,6 +622,13 @@ if __name__ == '__main__':
             re_Ll.append(EX3_instance.Re_Ll)
             Re.append(EX3_instance.Re)
         
+
+        np.savetxt('EX3/data/Le.txt', np.vstack((Re, lambda_eta)).T)
+        np.savetxt('EX3/data/re_Le.txt', np.vstack((Re, re_Le)).T)
+
+        np.savetxt('EX3/data/Ll.txt', np.vstack((Re, lambda_lambda)).T)
+        np.savetxt('EX3/data/re_Ll.txt', np.vstack((Re, re_Ll)).T)
+
         plt.figure()
         plt.scatter(Re, lambda_eta, label='Lambda_eta')
         plt.plot(Re, re_Le, label='Re_Le')
