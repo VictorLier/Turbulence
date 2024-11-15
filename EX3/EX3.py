@@ -471,7 +471,7 @@ class EX3:
         self.mean()
         self.variance()
         self.fluc_vel()
-        self.time_correlation(plot=True)
+        self.time_correlation()
         self.micro_macro()
         self.dissipation_rate()
         self.kolomogorov_length()
@@ -493,8 +493,8 @@ class EX3:
 
         self.Lambda_eta = self.Lambda_f / self.eta_K # p. 708
         self.Lambda_lambda = self.Lambda_f / self.lambda_f # p. 708
-        self.Re_Le = self.Re**(3/4) # p. 708
-        self.Re_Ll = self.Re**(1/2) # p. 708
+        self.Re_Le = self.Re**(3/4) * 0.115 # p. 708 - get the same scale as the other
+        self.Re_Ll = self.Re**(1/2) * 0.035 # p. 708 - get the same scale as the other
 
 
 
@@ -637,7 +637,7 @@ if __name__ == '__main__':
         plt.xlabel('Re')
         plt.ylabel('Length scale ratio')
         plt.legend()
-        plt.ylim(1e1, 1e6)
+        # plt.ylim(1e1, 1e6)
 
 
         plt.figure()
@@ -648,7 +648,7 @@ if __name__ == '__main__':
         plt.xlabel('Re')
         plt.ylabel('Length scale ratio')
         plt.legend()
-        plt.ylim(1e1, 1e6)
+        # plt.ylim(1e1, 1e6)
 
         plt.show()
 
