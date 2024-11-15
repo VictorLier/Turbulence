@@ -196,17 +196,27 @@ class EX3:
             plt.ylabel('Fluctuating velocity [m/s]')
             plt.grid()
 
+            # Plot for pgfplot
+            plt.figure(figsize=(20, 6))
+            plt.plot(self.t, self.uprime, color='black' , linewidth=1.5)
+            plt.gca().set_axis_off()
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+            plt.margins(0,0)
+            plt.xlim(-0.5, 10.5)
+            plt.ylim(-11, 16)
+            plt.savefig('EX3/data/fluctuating_velocity.png', dpi=300, bbox_inches='tight', transparent=True)
+
+
             plt.figure()
             plt.title('Fluctuating velocity - Zoomed')
-            plt.plot(self.t, self.uprime)
+            plt.plot(self.t[self.fs*2:int(self.fs*2.05)], self.uprime[self.fs*2:int(self.fs*2.05)])
             plt.xlabel('Time [s]')
             plt.ylabel('Fluctuating velocity [m/s]')
-            plt.xlim(2, 2.05)
             plt.grid()
 
 
-            np.savetxt('EX3/data/fluctuating_velocity.txt', np.vstack((self.t, self.uprime)).T[::150])
-            np.savetxt('EX3/data/fluctuating_velocity_zoomed.txt', np.vstack((self.t, self.uprime)).T[self.fs*2:self.fs*2+500])
+            np.savetxt('EX3/data/fluctuating_velocity.txt', np.vstack((self.t, self.uprime)).T[::75])
+            np.savetxt('EX3/data/fluctuating_velocity_zoomed.txt', np.vstack((self.t, self.uprime)).T[self.fs*2:int(self.fs*2.05)])
 
 
     def probability_density(self, plot: bool = False) -> None:
@@ -506,7 +516,7 @@ if __name__ == '__main__':
         print(c)
 
 
-    if False: # Part AI1
+    if True: # Part AI1
         print('Part AI1')
         ex1 = EX3()
         ex1.mean(printbol=True)
@@ -601,7 +611,7 @@ if __name__ == '__main__':
         ex10.charactaristic_wave_numbers(printbool=True)
         
 
-    if True: # Part AI11
+    if False: # Part AI11
         print('Part AI11')
 
         dataset_list = range(1, 13)
