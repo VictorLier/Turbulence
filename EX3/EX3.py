@@ -309,8 +309,8 @@ class EX3:
         self.Lambda_f = self.T_E * self.ubar # (4.55)
 
         if printbool:
-            print(f'The micro turbulent scale is {self.lambda_f:.4g} m')
-            print(f'The macro turbulent scale is {self.Lambda_f:.4g} m')
+            print(f'The micro turbulent scale is {self.lambda_f:.3g} m')
+            print(f'The macro turbulent scale is {self.Lambda_f:.3g} m')
 
 
     def dissipation_rate(self, printbool: bool = False) -> None:
@@ -342,7 +342,7 @@ class EX3:
         self.eta_K = (self.nu**3 / self.epsilon)**(1/4) # (4.86)
 
         if printbool:
-            print(f'The Kolmogorov length scale is {self.eta_K:.4g} m')
+            print(f'The Kolmogorov length scale is {self.eta_K:.3g} m')
 
 
     def kolomogorov_time(self, printbool: bool = False) -> None:
@@ -482,9 +482,9 @@ class EX3:
         self.variance()
         self.fluc_vel()
         self.time_correlation()
-        self.micro_macro()
+        self.micro_macro(printbool=True)
         self.dissipation_rate()
-        self.kolomogorov_length()
+        self.kolomogorov_length(printbool=True)
 
 
     def reynolds_number_dependence(self) -> None:
@@ -516,7 +516,7 @@ if __name__ == '__main__':
         print(c)
 
 
-    if True: # Part AI1
+    if False: # Part AI1
         print('Part AI1')
         ex1 = EX3()
         ex1.mean(printbol=True)
@@ -611,7 +611,7 @@ if __name__ == '__main__':
         ex10.charactaristic_wave_numbers(printbool=True)
         
 
-    if False: # Part AI11
+    if True: # Part AI11
         print('Part AI11')
 
         dataset_list = range(1, 13)
@@ -625,6 +625,7 @@ if __name__ == '__main__':
             print(f'Dataset {dataset}')
             EX3_instance = EX3(dataset=dataset)
             EX3_instance.reynolds_number_dependence()
+
 
             lambda_eta.append(EX3_instance.Lambda_eta)
             lambda_lambda.append(EX3_instance.Lambda_lambda)
